@@ -81,7 +81,8 @@ public class HypergraphSort {
 		final int partSize = (int)( numVerts * 0xAAAAAAABL >>> 33 );
 		final Jenkins hasher = new Jenkins(seed);
 		//TODO Jenkins not returning the same as Hashes...
-		final HashKey hash = Hashes.jenkins(triple, seed);
+		//final HashKey hash = Hashes.jenkins(triple, seed);
+		final HashKey hash = hasher.hash(triple);
 		e[0] = (int)((hash.getFirst() & 0x7FFFFFFFFFFFFFFFL) % partSize);
 		e[1] = (int)(partSize + (hash.getSecond() & 0x7FFFFFFFFFFFFFFFL) % partSize);
 		e[2] = (int)((partSize << 1) + (hash.getThird() & 0x7FFFFFFFFFFFFFFFL) % partSize);

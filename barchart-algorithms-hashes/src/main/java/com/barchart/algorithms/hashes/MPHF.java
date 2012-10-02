@@ -64,12 +64,14 @@ public class MPHF {
 		
 		globalseed = seed;
 		
-		long m = values.size();
+		long size = values.size();
 		
-		count = new long[(int)((2L * m + BITS_PER_BLOCK - 1) / BITS_PER_BLOCK)];
+		final int numBlocks = (int) Math.ceil((2L * size + BITS_PER_BLOCK - 1) / (double) BITS_PER_BLOCK);
+		
+		count = new long[numBlocks];
 		long c = 0;
 		
-		final int numWords = (int)((2L * m + Long.SIZE - 1) / Long.SIZE);
+		final int numWords = (int)((2L * size + Long.SIZE - 1) / Long.SIZE);
 		
 		for(int i = 0; i < numWords; i++) {
 			if((i & (BITS_PER_BLOCK / Long.SIZE - 1)) == 0) {
