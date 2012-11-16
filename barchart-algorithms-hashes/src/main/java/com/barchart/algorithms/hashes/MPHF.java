@@ -7,6 +7,7 @@ import java.util.List;
 public class MPHF {
 
 	public static final int BITS_PER_BLOCK = 1024;
+	
 	private static final long ONES_STEP_4 = 0x1111111111111111L;
 	private static final long ONES_STEP_8 = 0x0101010101010101L;
 	
@@ -66,7 +67,8 @@ public class MPHF {
 		
 		long size = values.size();
 		
-		final int numBlocks = (int) Math.ceil((2L * size + BITS_PER_BLOCK - 1) / (double) BITS_PER_BLOCK);
+		final int numBlocks = (int) Math.ceil((2L * size + BITS_PER_BLOCK - 1) / 
+				(double) BITS_PER_BLOCK);
 		
 		count = new long[numBlocks];
 		long c = 0;
@@ -133,7 +135,7 @@ public class MPHF {
 			rank += countNonzeroPairs(fromVals(wordInBlock++, mph));
 		}
 
-		long from = fromVals(word, mph);
+		final long from = fromVals(word, mph);
 		
 		return rank + countNonzeroPairs(from & (1L << x % Long.SIZE) - 1);
 	}
@@ -144,6 +146,8 @@ public class MPHF {
 		
 		final HashKey key = keyHash.hash(value);
 		
+		System.out.println("Value " + value + " to key " + key.toString());
+		
 		hgSorter.keyToEdge(key, globalseed, e);
 		
 		final long result = rank(e[(int)(mph.get(e[0]) + 
@@ -151,23 +155,6 @@ public class MPHF {
 				 mph.get(e[2])) % 3]);
 
 		return result;
-		
-	}
-	
-	public static void main(final String[] args) {
-		
-		final List<Integer> vals = new ArrayList<Integer>();
-		
-		vals.add(1);
-		vals.add(13);
-		vals.add(4001);
-		vals.add(906);
-		
-		final MPHF mphf = new MPHF(vals);
-		
-		for(Integer i : vals) {
-			System.out.println(mphf.getLong(i));
-		}
 		
 	}
 	

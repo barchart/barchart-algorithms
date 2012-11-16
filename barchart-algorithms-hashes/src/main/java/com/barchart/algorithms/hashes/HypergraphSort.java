@@ -1,6 +1,7 @@
 package com.barchart.algorithms.hashes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -61,8 +62,6 @@ public class HypergraphSort {
 		
 		for(HashKey key : keys) {
 			
-			HashKey newKey = hash.hash(key);
-			
 			keyToEdge(key, seed, e);
 			
 			/* Store the edge */
@@ -78,10 +77,8 @@ public class HypergraphSort {
 	}
 	
 	public void keyToEdge(final HashKey triple, final long seed, final int e[] ) {
-		final int partSize = (int)( numVerts * 0xAAAAAAABL >>> 33 );
+		final int partSize = (int)(numVerts * 0xAAAAAAABL >>> 33);
 		final Jenkins hasher = new Jenkins(seed);
-		//TODO Jenkins not returning the same as Hashes...
-		//final HashKey hash = Hashes.jenkins(triple, seed);
 		final HashKey hash = hasher.hash(triple);
 		e[0] = (int)((hash.getFirst() & 0x7FFFFFFFFFFFFFFFL) % partSize);
 		e[1] = (int)(partSize + (hash.getSecond() & 0x7FFFFFFFFFFFFFFFL) % partSize);
@@ -162,6 +159,9 @@ public class HypergraphSort {
 			vertex1[z] ^= y;
 			vertex2[z] ^= x;
 		}
+		
+//		System.out.println(Arrays.toString(vertex1));
+//		System.out.println(Arrays.toString(vertex2) + "\n");
 		
 	}
 	
