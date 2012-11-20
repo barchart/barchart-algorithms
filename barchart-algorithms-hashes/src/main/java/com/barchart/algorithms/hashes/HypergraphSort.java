@@ -1,8 +1,6 @@
 package com.barchart.algorithms.hashes;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 
@@ -47,9 +45,7 @@ public class HypergraphSort {
 		
 	}
 	
-	public boolean generateAndSort(final Collection<HashKey> keys, final long seed) {
-		
-		Jenkins hash = new Jenkins(seed);
+	public boolean generateAndSort(final long[][] keys, final long seed) {
 		
 		/* Clean */
 		for(int i = 0; i < numVerts; i++) {
@@ -60,7 +56,7 @@ public class HypergraphSort {
 		
 		final int[] e = new int[3];
 		
-		for(HashKey key : keys) {
+		for(long[] key : keys) {
 			
 			keyToEdge(key, seed, e);
 			
@@ -76,13 +72,13 @@ public class HypergraphSort {
 		return sort();
 	}
 	
-	public void keyToEdge(final HashKey triple, final long seed, final int e[] ) {
+	public void keyToEdge(final long[] triple, final long seed, final int e[] ) {
 		final int partSize = (int)(numVerts * 0xAAAAAAABL >>> 33);
 		final Jenkins hasher = new Jenkins(seed);
-		final HashKey hash = hasher.hash(triple);
-		e[0] = (int)((hash.getFirst() & 0x7FFFFFFFFFFFFFFFL) % partSize);
-		e[1] = (int)(partSize + (hash.getSecond() & 0x7FFFFFFFFFFFFFFFL) % partSize);
-		e[2] = (int)((partSize << 1) + (hash.getThird() & 0x7FFFFFFFFFFFFFFFL) % partSize);
+		final long[] hash = hasher.hash(triple);
+		e[0] = (int)((hash[0] & 0x7FFFFFFFFFFFFFFFL) % partSize);
+		e[1] = (int)(partSize + (hash[1] & 0x7FFFFFFFFFFFFFFFL) % partSize);
+		e[2] = (int)((partSize << 1) + (hash[2] & 0x7FFFFFFFFFFFFFFFL) % partSize);
 	}
 	
 	private boolean sort() {
@@ -159,9 +155,6 @@ public class HypergraphSort {
 			vertex1[z] ^= y;
 			vertex2[z] ^= x;
 		}
-		
-//		System.out.println(Arrays.toString(vertex1));
-//		System.out.println(Arrays.toString(vertex2) + "\n");
 		
 	}
 	

@@ -2,13 +2,6 @@ package com.barchart.algorithms.hashes;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,15 +9,18 @@ import org.slf4j.LoggerFactory;
 
 public class TestMPHF {
 	
+	@SuppressWarnings("unused")
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	
 	@Test
 	public void testSmallVals() {
 		
-		final List<Integer> ints = new ArrayList<Integer>();
+		final int[] ints = new int[21];
 		
+		int counter = 0;
 		for(int i = -10; i < 11; i++) {
-			ints.add(i);
+			ints[counter] = i;
+			counter++;
 		}
 		
 		final MPHF func = new MPHF(ints);
@@ -36,10 +32,12 @@ public class TestMPHF {
 	@Test
 	public void testMedVals() {
 		
-		final List<Integer> ints = new ArrayList<Integer>();
+		final int[] ints = new int[21];
 		
+		int counter = 0;
 		for(int i = -10; i < 11; i++) {
-			ints.add(i * 100);
+			ints[counter] = i * 1000;
+			counter++;
 		}
 		
 		final MPHF func = new MPHF(ints);
@@ -51,10 +49,12 @@ public class TestMPHF {
 	@Test
 	public void testLargeVals() {
 		
-		final List<Integer> ints = new ArrayList<Integer>();
+		final int[] ints = new int[21];
 		
+		int counter = 0;
 		for(int i = -10; i < 11; i++) {
-			ints.add(i * 100000);
+			ints[counter] = i * 1000000;
+			counter++;
 		}
 		
 		final MPHF func = new MPHF(ints);
@@ -66,42 +66,46 @@ public class TestMPHF {
 	@Test
 	public void testLargeSet() {
 		
-		final List<Integer> ints = new ArrayList<Integer>();
+		final int[] ints = new int[5000];
 		
 		for(int i = 0; i < 5000; i++) {
-			ints.add(i*10);
+			ints[i] = i;
 		}
 		
 		final MPHF func = new MPHF(ints);
+
+		final long start = System.currentTimeMillis();
 		
 		assertTrue(testMPH(ints, func));
 		
+		System.out.println(System.currentTimeMillis() - start);
 	}
 	
-	private boolean testMPH(final List<Integer> ints, final MPHF func) {
+	private boolean testMPH(final int[] ints, final MPHF func) {
 		
-		final Map<Long, AtomicInteger> hashCount = new
-				TreeMap<Long, AtomicInteger>();
+		final int[] counter = new int[ints.length];
 		
-		for(long i = 0; i < ints.size(); i++) {
-			hashCount.put(i, new AtomicInteger(0));
+		for(int i = 0; i < ints.length; i++) {
+			counter[i] = 0;
 		}
 		
-		for(final Integer i : ints) {
-			hashCount.get(func.getLong(i)).getAndIncrement();
+		for(int i : ints) {
+			counter[(int) func.getLong(i)]++;
 		}
-
-		for(final Entry<Long, AtomicInteger> e : hashCount.entrySet()) {
-			if(e.getValue().get() != 1) {
+		
+		for(int i : counter) {
+			if(i != 1) {
 				
-				for(final Entry<Long, AtomicInteger> ex : hashCount.entrySet()) {
-					System.out.println(ex.getKey() + " mapped " + ex.getValue().get() + " times");
+				for(int j = 0; j < ints.length; j++) {
+					System.out.println(ints[j] + " mapped " + counter[j] + " times");
 				}
+				
 				return false;
 			}
 		}
 		
 		return true;
+		
 	}
 
 }

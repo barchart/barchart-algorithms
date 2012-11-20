@@ -21,9 +21,9 @@ public class Jenkins {
 	 * @param value
 	 * @return a new hash key.
 	 */
-	public HashKey hash(final int value) {
+	public long[] hash(final int value) {
 		
-		final HashKey key = new HashKey();
+		final long[] key = new long[3];
 		
 		long a = value + seed;
 		long b = value + seed;
@@ -42,9 +42,9 @@ public class Jenkins {
 		b -= c; b -= a; b ^= (a << 18);
 		c -= a; c -= b; c ^= (b >>> 22);
 		
-		key.setFirst(a);
-		key.setSecond(b);
-		key.setThird(c);
+		key[0] = a;
+		key[1] = b;
+		key[2] = c;
 		
 		return key;
 		
@@ -56,18 +56,18 @@ public class Jenkins {
 	 * @param hashKey
 	 * @return the new hash key.
 	 */
-	public HashKey hash(final HashKey hashKey) {
+	public long[] hash(final long[] hashKey) {
 		
-		final HashKey key = new HashKey();
+		final long[] hash = new long[3];
 		
 		long a, b, c;
 		
 		a = b = seed;
 		c = 0x9e3779b97f4a7c13L; /* the golden ratio; an arbitrary value */
 
-		a += hashKey.getFirst();
-		b += hashKey.getSecond();
-		c += hashKey.getThird();
+		a += hashKey[0];
+		b += hashKey[1];
+		c += hashKey[2];
 		
 		a -= b; a -= c; a ^= (c >>> 43);
 		b -= c; b -= a; b ^= (a << 9);
@@ -82,11 +82,11 @@ public class Jenkins {
 		b -= c; b -= a; b ^= (a << 18);
 		c -= a; c -= b; c ^= (b >>> 22);
 		
-		key.setFirst(a);
-		key.setSecond(b);
-		key.setThird(c);
+		hash[0] = a;
+		hash[1] = b;
+		hash[2] = c;
 		
-		return key;
+		return hash;
 		
 	}
 	

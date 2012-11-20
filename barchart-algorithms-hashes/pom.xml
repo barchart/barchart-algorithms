@@ -13,13 +13,6 @@
   	<dependencies>
   	
   			<dependency>
-    			<groupId>it.unimi.dsi</groupId>
-    			<artifactId>sux4j</artifactId>
-    			<version>3.0.5</version>
-			</dependency>
-  			
-  	
-  			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>1.6.4</version>

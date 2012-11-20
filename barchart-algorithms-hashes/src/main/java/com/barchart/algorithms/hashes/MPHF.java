@@ -1,13 +1,12 @@
 package com.barchart.algorithms.hashes;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MPHF {
 
 	// This is still broken, but increasing size of this hides it
 	public static final int BITS_PER_BLOCK = 10240000;
+	public static final int BITS_DIV = BITS_PER_BLOCK / Long.SIZE;
 	
 	private static final long ONES_STEP_4 = 0x1111111111111111L;
 	private static final long ONES_STEP_8 = 0x0101010101010101L;
@@ -17,14 +16,15 @@ public class MPHF {
 	
 	private long globalseed;
 	
-	private List<Integer> mph;
+	private int[] mph;
+	private long[] words;
 	
 	private final HypergraphSort hgSorter;
 	private final Jenkins keyHash;
 	
-	public MPHF(final List<Integer> values) {
+	public MPHF(final int[] values) {
 		
-		final int numElements = values.size();
+		final int numElements = values.length;
 		
 		final Random rand = new Random();
 		
@@ -32,17 +32,17 @@ public class MPHF {
 		
 		keyHash = new Jenkins(seed);
 		
-		final List<HashKey> elementHashes = new ArrayList<HashKey>();
+		final long[][] elementHashes = new long[numElements][3];
 		
-		for(Integer i : values) {
-			elementHashes.add(keyHash.hash(i));
+		for(int i = 0; i < numElements; i++) {
+			elementHashes[i] = keyHash.hash(values[i]);
 		}
 		
-		int listSize = (int)Math.ceil(values.size() * HypergraphSort.GAMMA) + 4;
+		int listSize = (int)Math.ceil(numElements * HypergraphSort.GAMMA) + 4;
 		
-		mph = new ArrayList<Integer>(listSize);
+		mph = new int[listSize];
 		for(int i = 0; i < listSize; i++) {
-			mph.add(0);
+			mph[i] = 0;
 		}
 		
 		hgSorter = new HypergraphSort(numElements);
@@ -59,14 +59,14 @@ public class MPHF {
 		while(top > 0) {
 			v = stack[--top];
 			k = (v > vertex1[v] ? 1 : 0) + (v > vertex2[v] ? 1 : 0); 
-			final int s = mph.get(vertex1[v]) + mph.get(vertex2[v]);
+			final int s = mph[vertex1[v]] + mph[vertex2[v]];
 			final int value = (k - s + 9) % 3;
-			mph.set(v, value == 0 ? 3 : value);
+			mph[v] = value == 0 ? 3 : value;
 		}
 		
 		globalseed = seed;
 		
-		long size = values.size();
+		long size = numElements;
 		
 		count = new long[(int)((2L * size + BITS_PER_BLOCK - 1) / BITS_PER_BLOCK)];
 		long c = 0;
@@ -74,47 +74,54 @@ public class MPHF {
 		final int numWords = (int)((2L * size + Long.SIZE - 1) / Long.SIZE);
 		
 		for(int i = 0; i < numWords; i++) {
-			if((i & (BITS_PER_BLOCK / Long.SIZE - 1)) == 0) {
-				count[i / (BITS_PER_BLOCK / Long.SIZE)] = c;
+			if((i & (BITS_DIV - 1)) == 0) {
+				count[i / (BITS_DIV)] = c;
 			}
 			c += countNonzeroPairs(fromVals(i, values));
+		}
+		
+		final int numW = (mph.length / 32) + 1;
+		words = new long[numW];
+		for(int i = 0; i < numW; i++) {
+			words[i] = fromVals(i, mph);
 		}
 		
 	}
 	
 	/* There is a bit shift way of doing this which i can do later */
-	private long fromVals(final int wordNumber, final List<Integer> vals) {
+	/* This is only called from the constructor so hash performance is not affected */
+	private long fromVals(final int wordNumber, final int[] vals) {
 		
-		if(wordNumber * 32 > vals.size()) {
+		if(wordNumber * 32 > vals.length) {
 			System.out.println("Wordnumber is too large for vals\t" + wordNumber + 
-					"\t" + vals.size());
+					"\t" + vals.length);
 			return -1;
 		}
 		
 		int last = (wordNumber + 1) * 32;
-		if(last > vals.size()) {
-			last = vals.size();
+		if(last > vals.length) {
+			last = vals.length;
 		}
 		
-		String bytes = "";
+		StringBuilder bytes = new StringBuilder();
 		for(int i = last -1; i >= wordNumber * 32; i--) {
-			switch(vals.get(i) % 4) {
+			switch(vals[i] % 4) {
 			case 0:
-				bytes = bytes + "00";
+				bytes.append("00");
 				break;
 			case 1:
-				bytes = bytes + "01";
+				bytes.append("01");
 				break;
 			case 2:
-				bytes = bytes + "10";
+				bytes.append("10");
 				break;
 			case 3:
-				bytes = bytes + "11";
+				bytes.append("11");
 				break;
 			}
 		}
 		
-		return new BigInteger(bytes, 2).longValue();
+		return new BigInteger(bytes.toString(), 2).longValue();
 	}
 	
 	public static int countNonzeroPairs(final long x) {
@@ -124,18 +131,22 @@ public class MPHF {
 		return (int)(byteSums * ONES_STEP_8 >>> 56);
 	}
 	
+	long max = 0;
+	
 	private long rank(long x) {
+		
 		x *= 2;
 		final int word = (int)(x / Long.SIZE);
 		
-		long rank = count[word / (BITS_PER_BLOCK / 64)];
-		int wordInBlock = word & ~((BITS_PER_BLOCK / 64) - 1);
+		long rank = count[word / (BITS_DIV)];
+		int wordInBlock = word & ~((BITS_DIV) - 1);
 		
 		while(wordInBlock < word) {
-			rank += countNonzeroPairs(fromVals(wordInBlock++, mph));
+			rank += countNonzeroPairs(words[wordInBlock++]);
 		}
 
-		final long from = fromVals(word, mph);
+		final long from = words[word];
+		
 		return rank + countNonzeroPairs(from & (1L << x % Long.SIZE) - 1);
 	}
 	
@@ -143,14 +154,14 @@ public class MPHF {
 		
 		final int[] e = new int[3];
 		
-		final HashKey key = keyHash.hash(value);
+		final long[] key = keyHash.hash(value);
 		
 		hgSorter.keyToEdge(key, globalseed, e);
 		
 		final long result = rank(e[(
-				mph.get(e[0]) + 
-				mph.get(e[1]) + 
-				mph.get(e[2])) % 3]);
+				mph[(e[0])] + 
+				mph[e[1]] + 
+				mph[e[2]]) % 3]);
 
 		return result;
 		
