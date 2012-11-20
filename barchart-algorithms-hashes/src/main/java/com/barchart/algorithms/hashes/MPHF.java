@@ -6,7 +6,8 @@ import java.util.List;
 
 public class MPHF {
 
-	public static final int BITS_PER_BLOCK = 1024;
+	// This is still broken, but increasing size of this hides it
+	public static final int BITS_PER_BLOCK = 10240000;
 	
 	private static final long ONES_STEP_4 = 0x1111111111111111L;
 	private static final long ONES_STEP_8 = 0x0101010101010101L;
@@ -51,7 +52,7 @@ public class MPHF {
 		}
 		
 		int top = numElements, k, v = 0;
-		final int[] stack = hgSorter.stack;
+		final int[] stack   = hgSorter.stack;
 		final int[] vertex1 = hgSorter.vertex1;
 		final int[] vertex2 = hgSorter.vertex2;
 		
@@ -67,10 +68,7 @@ public class MPHF {
 		
 		long size = values.size();
 		
-		final int numBlocks = (int) Math.ceil((2L * size + BITS_PER_BLOCK - 1) / 
-				(double) BITS_PER_BLOCK);
-		
-		count = new long[numBlocks];
+		count = new long[(int)((2L * size + BITS_PER_BLOCK - 1) / BITS_PER_BLOCK)];
 		long c = 0;
 		
 		final int numWords = (int)((2L * size + Long.SIZE - 1) / Long.SIZE);
@@ -129,14 +127,15 @@ public class MPHF {
 	private long rank(long x) {
 		x *= 2;
 		final int word = (int)(x / Long.SIZE);
-		long rank = count[word / (BITS_PER_BLOCK / Long.SIZE)];
-		int wordInBlock = word & ~((BITS_PER_BLOCK / Long.SIZE) - 1);
+		
+		long rank = count[word / (BITS_PER_BLOCK / 64)];
+		int wordInBlock = word & ~((BITS_PER_BLOCK / 64) - 1);
+		
 		while(wordInBlock < word) {
 			rank += countNonzeroPairs(fromVals(wordInBlock++, mph));
 		}
 
 		final long from = fromVals(word, mph);
-		
 		return rank + countNonzeroPairs(from & (1L << x % Long.SIZE) - 1);
 	}
 	
@@ -146,13 +145,12 @@ public class MPHF {
 		
 		final HashKey key = keyHash.hash(value);
 		
-		System.out.println("Value " + value + " to key " + key.toString());
-		
 		hgSorter.keyToEdge(key, globalseed, e);
 		
-		final long result = rank(e[(int)(mph.get(e[0]) + 
-				 mph.get(e[1]) + 
-				 mph.get(e[2])) % 3]);
+		final long result = rank(e[(
+				mph.get(e[0]) + 
+				mph.get(e[1]) + 
+				mph.get(e[2])) % 3]);
 
 		return result;
 		

@@ -68,8 +68,8 @@ public class TestMPHF {
 		
 		final List<Integer> ints = new ArrayList<Integer>();
 		
-		for(int i = 0; i < 413; i++) {
-			ints.add(i);
+		for(int i = 0; i < 5000; i++) {
+			ints.add(i*10);
 		}
 		
 		final MPHF func = new MPHF(ints);
