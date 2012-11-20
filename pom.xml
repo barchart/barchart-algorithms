@@ -1,12 +1,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.barchart.algorithms</groupId>
-  <artifactId>barchart-algorithms</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>barchart-algorithms</name>
-  <modules>
-  	<module>barchart-algorithms-hashes</module>
-  </modules>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.barchart.base</groupId>
+		<artifactId>barchart-archon</artifactId>
+		<version>2.3.2</version>
+	</parent>
+
+	<groupId>com.barchart.algorithms</groupId>
+	<artifactId>barchart-algorithms</artifactId>
+	<version>1.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	
+	<description>XXX</description>
+
+	<modules>
+	
+		<module>barchart-algorithms-hashes</module>
+		
+	</modules>
+	
 </project>
