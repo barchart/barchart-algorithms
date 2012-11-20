@@ -154,7 +154,7 @@ public class MPHF {
 		return rank + countNonzeroPairs(from & (1L << x % Long.SIZE) - 1);
 	}
 	
-	public int getLong(final int value) {
+	public int hash(final int value) {
 		
 		final int[] e = new int[3];
 		

@@ -74,11 +74,11 @@ public class TestMPHF {
 		
 		final MPHF func = new MPHF(ints);
 
-		final long start = System.currentTimeMillis();
-		
 		assertTrue(testMPH(ints, func));
 		
-		System.out.println(System.currentTimeMillis() - start);
+		System.out.println(func.hash(-1));
+		System.out.println(func.hash(10001));
+		
 	}
 	
 	private boolean testMPH(final int[] ints, final MPHF func) {
@@ -90,7 +90,7 @@ public class TestMPHF {
 		}
 		
 		for(int i : ints) {
-			counter[(int) func.getLong(i)]++;
+			counter[(int) func.hash(i)]++;
 		}
 		
 		for(int i : counter) {
