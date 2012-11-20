@@ -22,6 +22,10 @@ public class MPHF {
 	private final HypergraphSort hgSorter;
 	private final Jenkins keyHash;
 	
+	/**
+	 * Only tested up to 5000 values.
+	 * @param values
+	 */
 	public MPHF(final int[] values) {
 		
 		final int numElements = values.length;
@@ -150,7 +154,7 @@ public class MPHF {
 		return rank + countNonzeroPairs(from & (1L << x % Long.SIZE) - 1);
 	}
 	
-	public long getLong(final int value) {
+	public int getLong(final int value) {
 		
 		final int[] e = new int[3];
 		
@@ -163,7 +167,7 @@ public class MPHF {
 				mph[e[1]] + 
 				mph[e[2]]) % 3]);
 
-		return result;
+		return (int) result;
 		
 	}
 	
