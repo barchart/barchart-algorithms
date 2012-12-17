@@ -13,13 +13,11 @@
 	<artifactId>barchart-algorithms</artifactId>
 	<version>1.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	
-	<description>XXX</description>
 
 	<modules>
-	
+
 		<module>barchart-algorithms-hashes</module>
-		
+
 	</modules>
-	
+
 </project>
